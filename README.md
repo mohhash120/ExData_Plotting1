@@ -35,58 +35,22 @@ web site</a>:
 
 ## Loading the data
 
-
-
-
-
-When loading the dataset into R, please consider the following:
-
-* The dataset has 2,075,259 rows and 9 columns. First
-calculate a rough estimate of how much memory the dataset will require
-in memory before reading into R. Make sure your computer has enough
-memory (most modern computers should be fine).
-
-* We will only be using data from the dates 2007-02-01 and
-2007-02-02. One alternative is to read the data from just those dates
-rather than reading in the entire dataset and subsetting to those
-dates.
-
-* You may find it useful to convert the Date and Time variables to
-Date/Time classes in R using the `strptime()` and `as.Date()`
-functions.
-
-* Note that in this dataset missing values are coded as `?`.
-
-
-## Making Plots
-
-Our overall goal here is simply to examine how household energy usage
-varies over a 2-day period in February, 2007. Your task is to
-reconstruct the following plots below, all of which were constructed
-using the base plotting system.
-
-First you will need to fork and clone the following GitHub repository:
-[https://github.com/rdpeng/ExData_Plotting1](https://github.com/rdpeng/ExData_Plotting1)
-
-
-For each plot you should
-
-* Construct the plot and save it to a PNG file with a width of 480
-pixels and a height of 480 pixels.
-
-* Name each of the plot files as `plot1.png`, `plot2.png`, etc.
-
-* Create a separate R code file (`plot1.R`, `plot2.R`, etc.) that
-constructs the corresponding plot, i.e. code in `plot1.R` constructs
-the `plot1.png` plot. Your code file **should include code for reading
-the data** so that the plot can be fully reproduced. You should also
-include the code that creates the PNG file.
-
-* Add the PNG file and R code file to your git repository
-
-When you are finished with the assignment, push your git repository to
-GitHub so that the GitHub version of your repository is up to
-date. There should be four PNG files and four R code files.
+if(!file.exists("exdata-data-household_power_consumption.zip")) {
+ temp <- tempfile()
+ download.file("http://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip",temp)
+ file <- unzip(temp)
+ unlink(temp)
+ }
+ power <- read.table(file, header=T, sep=";")
+ power$Date <- as.Date(power$Date, format="%d/%m/%Y")
+ data <- power[(power$Date=="2007-02-01") | (power$Date=="2007-02-02"),]
+ data$Global_active_power <- as.numeric(as.character(data$Global_active_power))
+ data$Global_reactive_power <- as.numeric(as.character(data$Global_reactive_power))
+ data$Voltage <- as.numeric(as.character(data$Voltage))
+ data <- transform(data, timestamp=as.POSIXct(paste(Date, Time)), "%d/%m/%Y %H:%M:%S")
+ data$Sub_metering_1 <- as.numeric(as.character(data$Sub_metering_1))
+ data$Sub_metering_2 <- as.numeric(as.character(data$Sub_metering_2))
+ data$Sub_metering_3 <- as.numeric(as.character(data$Sub_metering_3))
 
 
 The four plots that you will need to construct are shown below. 
@@ -94,21 +58,67 @@ The four plots that you will need to construct are shown below.
 
 ### Plot 1
 
+plot1 <- function() {
+        hist(data$Global_active_power, main = paste("Global Active Power"), col="red", xlab="Global Active Power (kilowatts)")
+        dev.copy(png, file="plot1.png", width=480, height=480)
+        dev.off()
+        cat("Plot1.png has been saved in", getwd())
+}
+plot1()
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
-
+## plot1.png has been saved in C:/Users/m.hashim/Desktop/R programming/specdata
 
 ### Plot 2
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+plot2 <- function() {
+        plot(data$timestamp,data$Global_active_power, type="l", xlab="", ylab="Global Active Power (kilowatts)")
+        dev.copy(png, file="plot2.png", width=480, height=480)
+        dev.off()
+        cat("plot2.png has been saved in", getwd())
+}
+plot2()
 
+## plot2.png has been saved in C:/Users/m.hashim/Desktop/R programming/specdata
 
 ### Plot 3
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+plot3 <- function() {
+        plot(data$timestamp,data$Sub_metering_1, type="l", xlab="", ylab="Energy sub metering")
+        lines(data$timestamp,data$Sub_metering_2,col="red")
+        lines(data$timestamp,data$Sub_metering_3,col="blue")
+        legend("topright", col=c("black","red","blue"), c("Sub_metering_1  ","Sub_metering_2  ", "Sub_metering_3  "),lty=c(1,1), lwd=c(1,1))
+        dev.copy(png, file="plot3.png", width=480, height=480)
+        dev.off()
+        cat("plot3.png has been saved in", getwd())
+}
+plot3()
 
+## plot3.png has been saved in C:/Users/m.hashim/Desktop/R programming/specdata
 
 ### Plot 4
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+plot4 <- function() {
+        par(mfrow=c(2,2))
+        
+        ##PLOT 1
+        plot(data$timestamp,data$Global_active_power, type="l", xlab="", ylab="Global Active Power")
+        ##PLOT 2
+        plot(data$timestamp,data$Voltage, type="l", xlab="datetime", ylab="Voltage")
+        
+        ##PLOT 3
+        plot(data$timestamp,data$Sub_metering_1, type="l", xlab="", ylab="Energy sub metering")
+        lines(data$timestamp,data$Sub_metering_2,col="red")
+        lines(data$timestamp,data$Sub_metering_3,col="blue")
+        legend("topright", col=c("black","red","blue"), c("Sub_metering_1  ","Sub_metering_2  ", "Sub_metering_3  "),lty=c(1,1), bty="n", cex=.5) 
+        
+        #PLOT 4
+        plot(data$timestamp,data$Global_reactive_power, type="l", xlab="datetime", ylab="Global_reactive_power")
+        
+        #OUTPUT
+        dev.copy(png, file="plot4.png", width=480, height=480)
+        dev.off()
+        cat("plot4.png has been saved in", getwd())
+}
+plot4()
 
+## plot4.png has been saved in C:/Users/m.hashim/Desktop/R programming/specdata
